@@ -9,10 +9,11 @@ import kanban.view.*;
 
 public class Kanban {
     public static void main(String[] args) {
-    //  Login l = new Login();
-     // l.setVisible(true);
-     KanbanTela  k = new KanbanTela();
-     k.setVisible(true);
+    //    Login l = new Login();
+    //    l.setVisible(true);
+        
+        KanbanTela  k = new KanbanTela();
+        k.setVisible(true);
     }
     
 }

@@ -1,6 +1,8 @@
 package kanban.view;
 
+import java.time.LocalDate;
 import javax.swing.DefaultListModel;
+import javax.swing.JList;
 import javax.swing.ListModel;
 import kanban.entidades.*;
 
@@ -9,10 +11,15 @@ import kanban.entidades.*;
  * @author windows
  */
 public class KanbanTela extends javax.swing.JFrame {
-   Board b = new Board("Projeto 1");
-   DefaultListModel model = new DefaultListModel(); 
+    Board b = new Board("Projeto 1");
+
     public KanbanTela() {
         initComponents();
+        fazer.setModel(b.fazer);
+        analise.setModel(b.analise);
+        dev.setModel(b.dev);
+        teste.setModel(b.teste);
+        finalizado.setModel(b.finalizado);
     }
 
     /**
@@ -23,7 +30,6 @@ public class KanbanTela extends javax.swing.JFrame {
    
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
-        java.awt.GridBagConstraints gridBagConstraints;
 
         jPanel1 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
@@ -46,9 +52,10 @@ public class KanbanTela extends javax.swing.JFrame {
         txtTask = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setPreferredSize(new java.awt.Dimension(1000, 700));
 
         jPanel1.setToolTipText("");
-        jPanel1.setLayout(new java.awt.GridLayout());
+        jPanel1.setLayout(new java.awt.GridLayout(1, 0));
 
         fazer.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
         fazer.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -61,26 +68,46 @@ public class KanbanTela extends javax.swing.JFrame {
         jPanel1.add(jScrollPane1);
 
         analise.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        analise.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                analiseMouseClicked(evt);
+            }
+        });
         jScrollPane2.setViewportView(analise);
 
         jPanel1.add(jScrollPane2);
 
         dev.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        dev.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                devMouseClicked(evt);
+            }
+        });
         jScrollPane3.setViewportView(dev);
 
         jPanel1.add(jScrollPane3);
 
         teste.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        teste.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                testeMouseClicked(evt);
+            }
+        });
         jScrollPane4.setViewportView(teste);
 
         jPanel1.add(jScrollPane4);
 
         finalizado.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        finalizado.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                finalizadoMouseClicked(evt);
+            }
+        });
         jScrollPane5.setViewportView(finalizado);
 
         jPanel1.add(jScrollPane5);
 
-        jPanel2.setLayout(new java.awt.GridLayout());
+        jPanel2.setLayout(new java.awt.GridLayout(1, 0));
 
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel1.setText("A fazer");
@@ -147,23 +174,43 @@ public class KanbanTela extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void listMouseClicked(java.awt.event.MouseEvent evt, JList<Task> sourceList, JList<Task> destinationList, DefaultListModel<Task> sourceModel, DefaultListModel<Task> destinationModel) {                                   
+        int selectedIndex = sourceList.getSelectedIndex();
+        if (selectedIndex != -1) {
+            Task task = sourceModel.getElementAt(selectedIndex);
+            b.moveTarefa(sourceModel, destinationModel, task);
+        }
+    }
+    
     private void taskConfirmActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_taskConfirmActionPerformed
         Task t = new Task(txtTask.getText());
         b.addTarefa(b.fazer, t);
-        model.addElement(t.getDescricao());
-        fazer.setModel(model);
-        txtTask.setText("");
-      
-        
+        txtTask.setText("");     
     }//GEN-LAST:event_taskConfirmActionPerformed
-
+    
     private void fazerMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_fazerMouseClicked
-   
-     analise.setModel(model);
-      model.remove(fazer.getSelectedIndex());
-      fazer.setModel(model);
-        
+        listMouseClicked(evt, fazer, analise, b.fazer, b.analise);
     }//GEN-LAST:event_fazerMouseClicked
+
+    private void analiseMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_analiseMouseClicked
+        listMouseClicked(evt, analise, dev,b.analise, b.dev);
+    }//GEN-LAST:event_analiseMouseClicked
+
+    private void devMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_devMouseClicked
+        listMouseClicked(evt, dev, teste, b.dev, b.teste);
+    }//GEN-LAST:event_devMouseClicked
+
+    private void testeMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_testeMouseClicked
+        listMouseClicked(evt, teste, finalizado, b.teste, b.finalizado);
+    }//GEN-LAST:event_testeMouseClicked
+
+    private void finalizadoMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_finalizadoMouseClicked
+        int selectedIndex = finalizado.getSelectedIndex();
+        if(selectedIndex != -1) {
+            Task task = b.finalizado.getElementAt(selectedIndex);
+            b.removeTarefa(b.finalizado, task);
+        }
+    }//GEN-LAST:event_finalizadoMouseClicked
 
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -184,7 +231,7 @@ public class KanbanTela extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JScrollPane jScrollPane5;
     private javax.swing.JButton taskConfirm;
-    private javax.swing.JList<String> teste;
+    private javax.swing.JList<Task> teste;
     private javax.swing.JTextField txtTask;
     // End of variables declaration//GEN-END:variables
 }
