@@ -38,10 +38,12 @@ public class Board {
 
     public void removeTarefa(DefaultListModel<Task> lista, Task tarefa) {
         lista.removeElement(tarefa);
+        tarefa.setEstado(tarefa.getEstado() + 1);
     }
 
     public void moveTarefa(DefaultListModel<Task> source, DefaultListModel<Task> destiny, Task tarefa) {
         destiny.addElement(tarefa);
         source.removeElement(tarefa);
+        tarefa.setEstado(tarefa.getEstado() + 1);
     }
 }
