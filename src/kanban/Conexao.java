@@ -19,7 +19,7 @@ public class Conexao {
         private Connection conexao;
     private final String url = "jdbc:postgresql://localhost/kanban";
     private final String user = "postgres";
-    private final String password = "M@ssayuki12";
+    private final String password = "sua senha aqui";
     
 
  public Connection connect() throws SQLException {
