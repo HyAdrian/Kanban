@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import javax.swing.DefaultListModel;
 import javax.swing.JList;
 import javax.swing.ListModel;
+import kanban.Conexao;
 import kanban.entidades.*;
 
 /**
@@ -12,14 +13,27 @@ import kanban.entidades.*;
  */
 public class KanbanTela extends javax.swing.JFrame {
     Board b = new Board("Projeto 1");
-
+    Conexao conn = new Conexao();
     public KanbanTela() {
         initComponents();
+        
+        conn.preencheLista(b.fazer, 1);
         fazer.setModel(b.fazer);
+        
+        conn.preencheLista(b.analise, 2);
         analise.setModel(b.analise);
+        
+        conn.preencheLista(b.dev, 3);
         dev.setModel(b.dev);
+        
+        conn.preencheLista(b.teste, 4);
         teste.setModel(b.teste);
+        
+        conn.preencheLista(b.finalizado, 5);
         finalizado.setModel(b.finalizado);
+        
+        
+        
     }
 
     /**
@@ -179,13 +193,15 @@ public class KanbanTela extends javax.swing.JFrame {
         if (selectedIndex != -1) {
             Task task = sourceModel.getElementAt(selectedIndex);
             b.moveTarefa(sourceModel, destinationModel, task);
+            conn.updateTask(task);
         }
     }
     
     private void taskConfirmActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_taskConfirmActionPerformed
-        Task t = new Task(txtTask.getText());
+        Task t = new Task(txtTask.getText(),1);
         b.addTarefa(b.fazer, t);
-        txtTask.setText("");     
+        txtTask.setText(""); 
+        conn.insertTask(t,t.getEstado());
     }//GEN-LAST:event_taskConfirmActionPerformed
     
     private void fazerMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_fazerMouseClicked
@@ -209,6 +225,7 @@ public class KanbanTela extends javax.swing.JFrame {
         if(selectedIndex != -1) {
             Task task = b.finalizado.getElementAt(selectedIndex);
             b.removeTarefa(b.finalizado, task);
+            conn.updateTask(task);
         }
     }//GEN-LAST:event_finalizadoMouseClicked
 
