@@ -9,17 +9,17 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.LocalDate;
 import javax.swing.DefaultListModel;
-import javax.swing.JOptionPane;
 
 import kanban.entidades.Task;
 
 
 public class Conexao {
-        private Connection conexao;
-    private final String url = "jdbc:postgresql://localhost/kanban";
+    private Connection conexao;
+    private final String url = "jdbc:postgresql://localhost/Kanban";
     private final String user = "postgres";
-    private final String password = "sua senha aqui";
+    private final String password = "admin";
     
 
  public Connection connect() throws SQLException {
@@ -43,14 +43,15 @@ public class Conexao {
    
    }   
     
-     public void insertTask(Task task,int estado)
+     public void insertTask(Task task, LocalDate prazo, int estado)
      {
          long id = 0;
-         String SQL = "insert into task (descricao,estado) values (?,?)";
+         String SQL = "insert into task (descricao, prazo, estado) values (?,?, ?)";
          try(Connection conn = connect();
-                 PreparedStatement in = conn.prepareStatement(SQL,Statement.RETURN_GENERATED_KEYS)){
+             PreparedStatement in = conn.prepareStatement(SQL,Statement.RETURN_GENERATED_KEYS)){
              in.setString(1, task.getDescricao());
-             in.setInt(2,estado);
+             in.setDate(2, java.sql.Date.valueOf(task.prazo));
+             in.setInt(3,estado);
              int res = in.executeUpdate();
              if(res > 0){
                  try (ResultSet rs = in.getGeneratedKeys()) {
@@ -88,29 +89,21 @@ public class Conexao {
     }
          
     public void preencheLista(DefaultListModel<Task> lista, int estado){
-    String SQL = "select descricao,estado from task where estado = ?";
-     
-     try (Connection conn = connect();
-                PreparedStatement pstmt = conn.prepareStatement(SQL)) {
+        String SQL = "select descricao, prazo, estado from task where estado = ?";
+
+        try (Connection conn = connect();
+            PreparedStatement pstmt = conn.prepareStatement(SQL)) {
 
             pstmt.setInt(1, estado);
             ResultSet rs = pstmt.executeQuery();
             while(rs.next()){
-               Task t = new Task(rs.getString("descricao"),rs.getInt("estado"));
-               lista.addElement(t);
+                Task t = new Task(rs.getString("descricao").trim(), rs.getDate("prazo").toLocalDate() ,rs.getInt("estado"));
+                lista.addElement(t);
             } 
-        } catch (SQLException ex) {
-            System.out.println(ex.getMessage());
-        }
-    
-    
-    
-    
+            } catch (SQLException ex) {
+                System.out.println(ex.getMessage());
+            }
     
     }
-     
-     
-
-
 
 }

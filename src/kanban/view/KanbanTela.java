@@ -3,7 +3,13 @@ package kanban.view;
 import java.time.LocalDate;
 import javax.swing.DefaultListModel;
 import javax.swing.JList;
-import javax.swing.ListModel;
+import kanban.entidades.*;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.function.Predicate;
+import javax.swing.JTextField;
 import kanban.Conexao;
 import kanban.entidades.*;
 
@@ -12,7 +18,9 @@ import kanban.entidades.*;
  * @author windows
  */
 public class KanbanTela extends javax.swing.JFrame {
-    Board b = new Board("Projeto 1");
+    public Board b = new Board("Projeto 1");
+    public DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    public Lambda diferencaDias = (a, b) -> (int) ChronoUnit.DAYS.between(a, b);
     Conexao conn = new Conexao();
     public KanbanTela() {
         initComponents();
@@ -30,10 +38,7 @@ public class KanbanTela extends javax.swing.JFrame {
         teste.setModel(b.teste);
         
         conn.preencheLista(b.finalizado, 5);
-        finalizado.setModel(b.finalizado);
-        
-        
-        
+        finalizado.setModel(b.finalizado);   
     }
 
     /**
@@ -64,9 +69,18 @@ public class KanbanTela extends javax.swing.JFrame {
         jLabel5 = new javax.swing.JLabel();
         taskConfirm = new javax.swing.JButton();
         txtTask = new javax.swing.JTextField();
+        dataTask = new javax.swing.JFormattedTextField();
+        jLabel6 = new javax.swing.JLabel();
+        jLabel7 = new javax.swing.JLabel();
+        filtrarMenorQue = new javax.swing.JButton();
+        filterField = new javax.swing.JTextField();
+        filtrarMaiorQue = new javax.swing.JButton();
+        resetButton = new javax.swing.JButton();
+        cresButton = new javax.swing.JButton();
+        decButton = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setPreferredSize(new java.awt.Dimension(1000, 700));
+        setPreferredSize(new java.awt.Dimension(1200, 800));
 
         jPanel1.setToolTipText("");
         jPanel1.setLayout(new java.awt.GridLayout(1, 0));
@@ -155,6 +169,45 @@ public class KanbanTela extends javax.swing.JFrame {
             }
         });
 
+        jLabel6.setText("Nome da Tarefa");
+
+        jLabel7.setText("Prazo da Tarefa");
+
+        filtrarMenorQue.setText("prazo <");
+        filtrarMenorQue.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                filtrarMenorQueMouseClicked(evt);
+            }
+        });
+
+        filtrarMaiorQue.setText("> prazo");
+        filtrarMaiorQue.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                filtrarMaiorQueMouseClicked(evt);
+            }
+        });
+
+        resetButton.setText("Reset");
+        resetButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                resetButtonActionPerformed(evt);
+            }
+        });
+
+        cresButton.setText("Crescente");
+        cresButton.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                cresButtonMouseClicked(evt);
+            }
+        });
+
+        decButton.setText("Decrescente");
+        decButton.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                decButtonMouseClicked(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -162,64 +215,124 @@ public class KanbanTela extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 728, Short.MAX_VALUE)
+                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 966, Short.MAX_VALUE)
                     .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(txtTask, javax.swing.GroupLayout.PREFERRED_SIZE, 412, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(27, 27, 27)
-                        .addComponent(taskConfirm, javax.swing.GroupLayout.PREFERRED_SIZE, 137, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 0, Short.MAX_VALUE)))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(txtTask, javax.swing.GroupLayout.PREFERRED_SIZE, 412, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel6)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(filtrarMenorQue, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(18, 18, 18)
+                                .addComponent(filterField, javax.swing.GroupLayout.PREFERRED_SIZE, 88, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(18, 18, 18)
+                                .addComponent(filtrarMaiorQue, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(cresButton, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(18, 18, 18)
+                                .addComponent(decButton, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(resetButton, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel7)
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(dataTask, javax.swing.GroupLayout.PREFERRED_SIZE, 153, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                        .addComponent(taskConfirm, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                .addGap(0, 197, Short.MAX_VALUE)))))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addGap(46, 46, 46)
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel6)
+                    .addComponent(jLabel7))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(txtTask, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(taskConfirm))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 65, Short.MAX_VALUE)
+                    .addComponent(taskConfirm)
+                    .addComponent(dataTask, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(filtrarMenorQue)
+                    .addComponent(filterField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(filtrarMaiorQue)
+                    .addComponent(resetButton)
+                    .addComponent(cresButton)
+                    .addComponent(decButton))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 309, Short.MAX_VALUE)
+                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 571, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+    
+    private void sort(JList<Task> destinationList, DefaultListModel<Task> destinationModel, int order) {
+        DefaultListModel<Task> listaOrdenada = new DefaultListModel<>();
+        Task[] tasksArray = new Task[destinationList.getModel().getSize()];
 
+        for (int i = 0; i < destinationList.getModel().getSize(); i++) {
+            tasksArray[i] = destinationList.getModel().getElementAt(i);
+        }
+
+        Comparator<Task> comparator;
+        if (order == 1) {
+            comparator = Comparator.comparing(Task::getPrazo);
+        } else {
+            comparator = Comparator.comparing(Task::getPrazo).reversed();
+        }
+
+        Arrays.stream(tasksArray)
+              .sorted(comparator)
+              .forEach(listaOrdenada::addElement);
+        
+        destinationModel.clear();
+
+        for (int i = 0; i < listaOrdenada.size(); i++) {
+            Task elemento = listaOrdenada.getElementAt(i);
+            destinationModel.addElement(elemento);
+        }
+        
+        //destinationModel = listaFiltrada;
+        destinationList.setModel(destinationModel);
+    }
+    
+    private void filter(java.awt.event.MouseEvent evt, JList<Task> destinationList, Predicate<Task> filterPredicate){
+        DefaultListModel<Task> listaFiltrada = new DefaultListModel<>();
+
+        Task[] tasksArray = new Task[destinationList.getModel().getSize()];
+
+        for (int i = 0; i < destinationList.getModel().getSize(); i++) {
+            tasksArray[i] = destinationList.getModel().getElementAt(i);
+        }
+
+        Arrays.stream(tasksArray)
+              .filter(filterPredicate)
+              .sorted()
+              .forEach(listaFiltrada::addElement);
+
+        destinationList.setModel(listaFiltrada);
+    }
+    
     private void listMouseClicked(java.awt.event.MouseEvent evt, JList<Task> sourceList, JList<Task> destinationList, DefaultListModel<Task> sourceModel, DefaultListModel<Task> destinationModel) {                                   
         int selectedIndex = sourceList.getSelectedIndex();
         if (selectedIndex != -1) {
             Task task = sourceModel.getElementAt(selectedIndex);
             b.moveTarefa(sourceModel, destinationModel, task);
+            sourceList.setModel(sourceModel);
+            destinationList.setModel(destinationModel);
             conn.updateTask(task);
         }
     }
     
-    private void taskConfirmActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_taskConfirmActionPerformed
-        Task t = new Task(txtTask.getText(),1);
-        b.addTarefa(b.fazer, t);
-        txtTask.setText(""); 
-        conn.insertTask(t,t.getEstado());
-    }//GEN-LAST:event_taskConfirmActionPerformed
-    
-    private void fazerMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_fazerMouseClicked
-        listMouseClicked(evt, fazer, analise, b.fazer, b.analise);
-    }//GEN-LAST:event_fazerMouseClicked
-
-    private void analiseMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_analiseMouseClicked
-        listMouseClicked(evt, analise, dev,b.analise, b.dev);
-    }//GEN-LAST:event_analiseMouseClicked
-
-    private void devMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_devMouseClicked
-        listMouseClicked(evt, dev, teste, b.dev, b.teste);
-    }//GEN-LAST:event_devMouseClicked
-
-    private void testeMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_testeMouseClicked
-        listMouseClicked(evt, teste, finalizado, b.teste, b.finalizado);
-    }//GEN-LAST:event_testeMouseClicked
-
     private void finalizadoMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_finalizadoMouseClicked
         int selectedIndex = finalizado.getSelectedIndex();
         if(selectedIndex != -1) {
@@ -229,17 +342,163 @@ public class KanbanTela extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_finalizadoMouseClicked
 
+    private void testeMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_testeMouseClicked
+        listMouseClicked(evt, teste, finalizado, b.teste, b.finalizado);
+    }//GEN-LAST:event_testeMouseClicked
+
+    private void devMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_devMouseClicked
+        listMouseClicked(evt, dev, teste, b.dev, b.teste);
+    }//GEN-LAST:event_devMouseClicked
+
+    private void analiseMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_analiseMouseClicked
+        listMouseClicked(evt, analise, dev, b.analise, b.dev);
+    }//GEN-LAST:event_analiseMouseClicked
+
+    private void fazerMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_fazerMouseClicked
+        listMouseClicked(evt, fazer, analise, b.fazer, b.analise);
+    }//GEN-LAST:event_fazerMouseClicked
+
+    private void taskConfirmActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_taskConfirmActionPerformed
+        LocalDate dataPrazo = LocalDate.parse(dataTask.getText(), formatter);
+        Task t = new Task(txtTask.getText(), dataPrazo, 1);
+        b.addTarefa(b.fazer, t);
+        conn.insertTask(t, t.prazo,t.getEstado());
+        txtTask.setText("");
+        dataTask.setText("");
+        
+    }//GEN-LAST:event_taskConfirmActionPerformed
+
+    private void filtrarMenorQueMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_filtrarMenorQueMouseClicked
+        final JTextField menorQueField = filterField;
+        int filtro = Integer.parseInt(menorQueField.getText());
+
+        Predicate<Task> menorQuePredicate = tarefa -> diferencaDias.calculaDias(tarefa.dataEnvio, tarefa.prazo) == filtro ||
+        diferencaDias.calculaDias(tarefa.dataEnvio, tarefa.prazo) > filtro;
+
+        Thread threadFazer = new Thread(() -> {
+            filter(evt, fazer, menorQuePredicate);
+        });
+
+        Thread threadAnalise = new Thread(() -> {
+            filter(evt, analise, menorQuePredicate);
+        });
+
+        Thread threadDev = new Thread(() -> {
+            filter(evt, dev, menorQuePredicate);
+        });
+
+        Thread threadTeste = new Thread(() -> {
+            filter(evt, teste, menorQuePredicate);
+        });
+
+        threadFazer.start();
+        threadAnalise.start();
+        threadDev.start();
+        threadTeste.start();
+    }//GEN-LAST:event_filtrarMenorQueMouseClicked
+
+    private void filtrarMaiorQueMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_filtrarMaiorQueMouseClicked
+        final JTextField maiorQueField = filterField;
+        int filtro = Integer.parseInt(maiorQueField.getText());
+        Predicate<Task> maiorQuePredicate = tarefa -> diferencaDias
+                .calculaDias(tarefa.dataEnvio, tarefa.prazo) == filtro ||
+                diferencaDias.calculaDias(tarefa.dataEnvio, tarefa.prazo) < filtro;
+
+        Thread threadFazer = new Thread(() -> {
+            filter(evt, fazer, maiorQuePredicate);
+        });
+
+        Thread threadAnalise = new Thread(() -> {
+            filter(evt, analise, maiorQuePredicate);
+        });
+
+        Thread threadDev = new Thread(() -> {
+            filter(evt, dev, maiorQuePredicate);
+        });
+
+        Thread threadTeste = new Thread(() -> {
+            filter(evt, teste, maiorQuePredicate);
+        });
+
+        threadFazer.start();
+        threadAnalise.start();
+        threadDev.start();
+        threadTeste.start();
+    }//GEN-LAST:event_filtrarMaiorQueMouseClicked
+
+    private void resetButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_resetButtonActionPerformed
+        fazer.setModel(b.fazer);
+        analise.setModel(b.analise);
+        dev.setModel(b.dev);
+        teste.setModel(b.teste);
+    }//GEN-LAST:event_resetButtonActionPerformed
+
+    private void cresButtonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_cresButtonMouseClicked
+        Thread threadFazer = new Thread(() -> {
+            sort(fazer, b.fazer, 1);
+        });
+
+        Thread threadAnalise = new Thread(() -> {
+            sort(analise, b.analise, 1);
+        });
+
+        Thread threadDev = new Thread(() -> {
+            sort(dev, b.dev, 1);
+        });
+
+        Thread threadTeste = new Thread(() -> {
+            sort(teste, b.teste, 1);
+        });
+
+        threadFazer.start();
+        threadAnalise.start();
+        threadDev.start();
+        threadTeste.start();
+    }//GEN-LAST:event_cresButtonMouseClicked
+
+    private void decButtonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_decButtonMouseClicked
+        Thread threadFazer = new Thread(() -> {
+            sort(fazer, b.fazer, 2);
+        });
+
+        Thread threadAnalise = new Thread(() -> {
+            sort(analise, b.analise, 2);
+        });
+
+        Thread threadDev = new Thread(() -> {
+            sort(dev, b.dev, 2);
+        });
+
+        Thread threadTeste = new Thread(() -> {
+            sort(teste, b.teste, 2);
+        });
+
+        threadFazer.start();
+        threadAnalise.start();
+        threadDev.start();
+        threadTeste.start();
+    }//GEN-LAST:event_decButtonMouseClicked
+
+        
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JList<Task> analise;
+    private javax.swing.JButton cresButton;
+    private javax.swing.JFormattedTextField dataTask;
+    private javax.swing.JButton decButton;
     private javax.swing.JList<Task> dev;
     private javax.swing.JList<Task> fazer;
+    private javax.swing.JTextField filterField;
+    private javax.swing.JButton filtrarMaiorQue;
+    private javax.swing.JButton filtrarMenorQue;
     private javax.swing.JList<Task> finalizado;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
@@ -247,6 +506,7 @@ public class KanbanTela extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JScrollPane jScrollPane5;
+    private javax.swing.JButton resetButton;
     private javax.swing.JButton taskConfirm;
     private javax.swing.JList<Task> teste;
     private javax.swing.JTextField txtTask;

@@ -8,10 +8,7 @@ import kanban.view.*;
 
 
 public class Kanban {
-    public static void main(String[] args) {
-    //    Login l = new Login();
-    //    l.setVisible(true);
-             
+    public static void main(String[] args) {             
         KanbanTela  k = new KanbanTela();
         k.setVisible(true);
     }
